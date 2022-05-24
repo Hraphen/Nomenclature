@@ -14,7 +14,7 @@ steps:
 - task: SqlDacpacDeploymentOnMachineGroup@0
   inputs:
     TaskType: 'sqlInline'
-    InlineSql: 'SELECT * FROM Events'
+    InlineSql: 'SELECT * FROM Events,SELECT * FROM Entry,SELECT * FROM Locations'
     ServerName: 'events-server.database.windows.net'
     DatabaseName: 'EventsV2'
     AuthScheme: 'sqlServerAuthentication'
