@@ -7,21 +7,10 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  name: "Worker"
 
 steps:
 - script: echo Hello, world!
-- task: SqlAzureDacpacDeployment@1
-  inputs:
-    azureSubscription: 'Azure for Students(c5c0da29-b6c1-4a9e-832b-de5797b5e88a)'
-    AuthenticationType: 'server'
-    ServerName: 'events-server.database.windows.net'
-    DatabaseName: 'EventsV2'
-    SqlUsername: 'adminuser'
-    SqlPassword: 'ProiectING00'
-    deployType: 'InlineSqlTask'
-    SqlInline: 'SELECT * FROM Entry'
-    IpDetectionMethod: 'AutoDetect'
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
