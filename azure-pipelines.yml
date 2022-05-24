@@ -19,11 +19,9 @@ steps:
     DatabaseName: 'EventsV2'
     SqlUsername: 'adminuser'
     SqlPassword: 'ProiectING00'
-    deployType: 'DacpacTask'
-    DeploymentAction: 'Publish'
-    DacpacFile: 'SELECT * FROM Entry'
+    deployType: 'InlineSqlTask'
+    SqlInline: 'SELECT * FROM Entry'
     IpDetectionMethod: 'AutoDetect'
-  displayName: 'Run a one-line script'
 
 - script: |
     echo Add other tasks to build, test, and deploy your project.
