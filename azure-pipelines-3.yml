@@ -2,14 +2,11 @@
 trigger:
 - main
 
-pool:
-  name: "Worker"
-
 jobs:
   - job: Windows
     timeoutInMinutes: 0
     pool:
-     name : "mypool"
+     name : "worker"
     
     steps:
 
