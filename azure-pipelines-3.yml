@@ -63,23 +63,22 @@ jobs:
     
     
     
-    - task: SqlDacpacDeploymentOnMachineGroup@0
-      inputs:
-      TaskType: 'sqlInline'
-      ServerName: 'events-server.database.windows.net'
-      DatabaseName: 'EventsV2'
-      AuthScheme: 'sqlServerAuthentication'
-      SqlUsername: 'adminuser'
-      SqlPassword: 'ProiectING00'
-      deployType: 'InlineSqlTask'
-      SqlInline: |
-            
-            IF (LEN('$(orass)') > 0) 
-            BEGIN
-            INSERT INTO Locations (LocationName) VALUES ('$(orass)') 
-            END
-            ELSE
-            BEGIN
-            INSERT INTO Events (EventName, EventMessage) VALUES ('$(alert)', '$(text2)')
-            END
-      IpDetectionMethod: 'AutoDetect'
+- task: SqlDacpacDeploymentOnMachineGroup@0
+  inputs:
+    TaskType: 'sqlInline'
+    ServerName: 'events-server.database.windows.net'
+    DatabaseName: 'EventsV2'
+    AuthScheme: 'sqlServerAuthentication'
+    SqlUsername: 'adminuser'
+    SqlPassword: 'ProiectING00'
+    deployType: 'InlineSqlTask'
+    SqlInline: |            
+      IF (LEN('$(orass)') > 0) 
+        BEGIN
+          INSERT INTO Locations (LocationName) VALUES ('$(orass)') 
+        END
+      ELSE
+        BEGIN
+          INSERT INTO Events (EventName, EventMessage) VALUES ('$(alert)', '$(text2)')
+        END
+    IpDetectionMethod: 'AutoDetect'
