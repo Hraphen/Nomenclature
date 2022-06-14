@@ -1,0 +1,103 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+resources:
+ pipelines:
+   - pipeline: ProiectING
+     source: ProiectING
+     trigger: true 
+
+variables:
+ text2: ''
+ orass: ''
+ alert: ''
+ 
+
+jobs:
+  - job: Windows
+    timeoutInMinutes: 0
+    pool:
+     name : "Worker"
+    
+    steps:
+
+    - task: PowerShell@2
+      inputs:
+       targetType: 'inline'
+       script: |
+          $HTML = Invoke-RestMethod 'https://liveuamap.com/en'
+          $HTML -match '<div class="title">(?<quote>.*)</div></div>'
+          $Result = $Matches.Values
+          $text = ($Result -split "<")[0]
+          #echo "$([datetime]::Now) - $text"
+          $condition = $false
+          
+           Do {
+                  $HTML = Invoke-RestMethod 'https://liveuamap.com/en'
+                  $HTML -match '<div class="title">(?<quote>.*)</div></div>'
+                  $Result = $Matches.Values
+                  $text2 = ($Result -split "<")[0]
+                  echo "Caut stire noua:"
+                  $text2
+                  if ($text2 -ne $text){
+                      $condition = $true
+                      echo "Verific daca este alerta anti-aeriana:"
+                      if ($text2 -contains “aerial threat. Sirens sounding. Take cover now!”){  
+                              
+                              $alertname = 'Siren'
+                              Write-Host "##vso[task.setvariable variable=alert;]$alertname"
+                              $oras, $alerttype, $wgon, $wtdo = $text2 -split ". "
+                              $oras
+                              $alerttype
+                              $wgon
+                              $wtdo
+                              echo "Este alerta aeriana in orasul:"
+                              $oras2 = $oras.Split(', ')
+                              $oras2[0]
+                              
+                              Write-Host "##vso[task.setvariable variable=orass;]$oras2[0]"
+                       } 
+                      else{
+                        $alertname = 'Other'
+                        Write-Host "##vso[task.setvariable variable=alert;]$alertname"
+                        
+                        echo "Nu exista alerta de atac aerian:"
+                      }
+                      
+                    }          
+              echo "Nu exista stire noua."             
+              Start-Sleep -s 10
+              $condition
+           } while ($condition -eq $false)
+              
+              Write-Host "##vso[task.setvariable variable=text2]$text2"
+    
+    
+    
+    - task: SqlAzureDacpacDeployment@1
+      inputs:
+        azureSubscription: 'Azure subscription 1(a9aa225e-354b-4f33-bfaf-c3a99928a2bc)'
+        AuthenticationType: 'server'
+        ServerName: 'events-server.database.windows.net'
+        DatabaseName: 'EventsV2'
+        SqlUsername: 'adminuser'
+        SqlPassword: 'ProiectING00'
+        deployType: 'InlineSqlTask'
+        SqlInline: |
+            
+            IF (LEN('$(orass)') > 0) 
+            BEGIN
+            INSERT INTO Locations (LocationName) VALUES ('$(orass)') 
+            END
+            ELSE
+            BEGIN
+            INSERT INTO Events (EventName, EventMessage) VALUES ('$(alert)', '$(text2)')
+            END
+
+
+
+            
+            
+        IpDetectionMethod: 'AutoDetect'
